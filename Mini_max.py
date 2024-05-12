@@ -73,6 +73,8 @@ class MyAgent(Player):
         self.future_opponent_move = None
         self.board = None
         self.color = None
+        self.My_pieces = 12
+        self.opponent_pieces = 12
         self.my_piece_captured_square = None
         self.engine = chess.engine.SimpleEngine.popen_uci('./stockfish', setpgrp=True)
 
@@ -137,6 +139,7 @@ class MyAgent(Player):
         self.my_piece_captured_square = capture_square
         if captured_my_piece:
             self.board.remove_piece_at(capture_square)
+            self.My_pieces-=1
             self.game_history.append(self.board.fen())
 
     def choose_sense(self, sense_actions: List[chess.Square], move_actions: List[chess.Move], seconds_left: float) -> \
@@ -206,8 +209,8 @@ class MyAgent(Player):
         input_sample = self.preprocess_board_state(board.fen())
         input_sample = input_sample.reshape(1, -1, 72)  # Reshape to match the input shape of the model
         prediction = self.model.predict(input_sample)
-        print(float(prediction[0][0] + score) * player)
-        return float(prediction[0][0] + score) * player
+        print(float(prediction[0][0] + score) * player + self.My_pieces-self.opponent_pieces)
+        return float(prediction[0][0] + score) * player + self.My_pieces-self.opponent_pieces
 
     # Initialize variables
 
@@ -303,6 +306,9 @@ class MyAgent(Player):
         # if a move was executed, apply it to our board
         if taken_move is not None:
             self.board.push(taken_move)
+        if captured_opponent_piece:
+            self.board.remove_piece_at(capture_square)
+            self.opponent_pieces-=1
         self.game_history.append(self.board.fen())
 
     def handle_game_end(self, winner_color: Optional[Color], win_reason: Optional[WinReason],
