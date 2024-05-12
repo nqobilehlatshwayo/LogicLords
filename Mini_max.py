@@ -68,7 +68,7 @@ def store_transposition(board_key, score):
 
 class MyAgent(Player):
     def __init__(self):
-        self.model = load_model("Data/trained_model.keras")
+        self.model = load_model("Data/trained_model.keras") #change this to the directory of the trained model
         self.game_history = []
         self.future_opponent_move = None
         self.board = None
