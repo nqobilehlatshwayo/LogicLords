@@ -42,7 +42,7 @@ def save_game_states(game_states, filename):
         json.dump(game_states, f)
 
 
-class MyAgent(Player):
+class Neural_Network(Player):
     def __init__(self):
         self.model = load_model("Data/trained_model.keras")
         self.game_history = []
@@ -185,12 +185,14 @@ class MyAgent(Player):
         best_score = -math.inf
         ordered_moves = self.order_moves(move_actions, self.board)
         for move in ordered_moves:
+            if move not in self.board.legal_moves:
+                continue
             self.board.push(move)
             score = self.evaluate_board(self.board)
             if score > best_score:
                 best_score = score
                 best_move = move
-            alpha = max(alpha, best_score)
+            #alpha = max(alpha, best_score)
             self.board.pop()
         if best_move:
             return best_move
